@@ -13,9 +13,10 @@ current_user_email = st.session_state.get("current_user_email")
 logged_in = current_user_email != None
 
 ADMIN_EMAILS = [
-    "nightfever170@gmail.com",
-    "tungabayrak@gmail.com",
-    "torii.kyuu@gmail.com",
+    "pyaesonemyo",
+    "tungabayrak",
+    "moazzam",
+    "thomas",
 ]
 
 login_box = st.empty()
