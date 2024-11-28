@@ -1,7 +1,8 @@
 import json
 import requests
 import streamlit as st
-from tools import get_image_items, llm_generate
+from tools import llm_generate
+from manager import manager
 import streamlit.components.v1 as components
 
 st.set_page_config(page_title="Shark Label", page_icon="🦈", layout="wide")
@@ -54,40 +55,21 @@ APP_MENU = "🚩 App"
 DATA_MENU = "📅 Data"
 selected_menu = st.sidebar.radio("Menus", [INFO, APP_MENU, DATA_MENU])
 
-# Load data
-with open("khan-academy-data.json") as f:
-    data = json.load(f)
-
 if st.sidebar.button("Logout"):
     st.session_state["current_user_email"] = None
     st.rerun()
 
 
-with open("labeler.html", "r") as f:
-    labeler = f.read()
-
 if selected_menu == INFO:
     st.markdown("""### Information""")
 
 elif selected_menu == APP_MENU:
-    st.markdown("### ✔️ Label data")
-    z = get_image_items(data)
-    images = [
-        img
-        for img in z
-        if "options" in img
-        and img["options"]["backgroundImage"]["url"].endswith(".png")
-    ]
+    st.markdown(f"{len(manager.data)} images waiting to be labelled.")
 
-    st.markdown(f"{len(images)} images waiting to be labelled.")
-
-    if st.query_params.get("index") is None:
-        st.query_params["index"] = 1  # type: ignore
-
-    if st.button("Load Image"):
-        i = int(st.query_params["index"])
-        image_url = images[-i]["options"]["backgroundImage"]["url"]
-        st.query_params["index"] = i + 1  # type: ignore
+    if st.button("Label", icon="➡️"):
+        image_url = manager.load_image(st.session_state["current_user_email"])[
+            "options"
+        ]["backgroundImage"]["url"]
 
         with st.spinner("Downloading image"):
             resp = requests.get(image_url)
@@ -101,7 +83,9 @@ elif selected_menu == APP_MENU:
         descriptors = response.split("-")
         st.text_input(label="Label", value=descriptors)
         placeholder = st.text(f"Data {image_url}")
-        components.html(labeler.replace("{image_url}", image_url), height=1000)
+        components.html(manager.labeler.replace("{image_url}", image_url), height=1000)
 
 elif DATA_MENU:
-    pass
+    st.table(
+        [{"user": k, "n_labelled": len(v)} for k, v in manager.registeration.items()]
+    )
