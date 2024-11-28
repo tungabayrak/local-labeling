@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Drawing Tools</title>
+    <style>
+      #container {
+        position: relative;
+        display: inline-block;
+      }
+      canvas,
+      img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        border: 3px solid #ff9a62;
+      }
+
+      img {
+        pointer-events: none;
+      }
+      #tools {
+        margin-top: 20px;
+      }
+
+      button {
+        padding: 4px 12px;
+        border: 1px solid gray;
+        border-radius: 8px;
+        background: transparent;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: rgb(160, 160, 160);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="tools">
+      <button onclick="setTool('pencil')">Pencil</button>
+      <button onclick="setTool('line')">Line</button>
+      <button onclick="setTool('rectangle')">Rectangle</button>
+      <button onclick="clearCanvas()">Clear</button>
+      <button onclick="saveDrawing()">Save Drawing</button>
+    </div>
+    <div id="container">
+      <img
+        id="image"
+        src="{image_url}"
+        alt="Image"
+      />
+      <canvas id="canvas"></canvas>
+    </div>
+    <script>
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      const image = document.getElementById("image");
+      const drawingData = [{"url": "{image_url}"}];
+      let currentTool = "pencil";
+      let drawing = false;
+      let startX, startY;
+
+      // Function to send data back to Streamlit
+      function sendToStreamlit(data) {
+        window.parent.postMessage(
+          {
+            isStreamlitMessage: true,
+            type: "streamlit:setComponentValue",
+            ...data,
+          },
+          "*"
+        );
+      }
+
+      // Resize canvas to match the image
+      image.onload = () => {
+        canvas.width = image.width;
+        canvas.height = image.height;
+      };
+
+      function setTool(tool) {
+        currentTool = tool;
+      }
+
+      // Clear the canvas and reset drawing data
+      function clearCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawingData.length = 0; // Clear all drawing data
+      }
+
+      function setStyle() {
+        ctx.strokeStyle = "#fc0000";
+        ctx.lineWidth = 4;
+      }
+
+      setStyle();
+
+      // Redraw the entire canvas
+      function redrawCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(image, 0, 0); // Reset to the original image
+
+        setStyle();
+
+        drawingData.forEach((item) => {
+          if (item.tool === "pencil") {
+            ctx.beginPath();
+            item.points.forEach((point, index) => {
+              const x = point.x * canvas.width;
+              const y = point.y * canvas.height;
+              if (index === 0) ctx.moveTo(x, y);
+              else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            ctx.closePath();
+          } else if (item.tool === "rectangle") {
+            ctx.strokeRect(
+              item.x * canvas.width,
+              item.y * canvas.height,
+              item.width * canvas.width,
+              item.height * canvas.height
+            );
+          } else if (item.tool === "line") {
+            ctx.beginPath();
+            ctx.moveTo(item.startX * canvas.width, item.startY * canvas.height);
+            ctx.lineTo(item.endX * canvas.width, item.endY * canvas.height);
+            ctx.stroke();
+            ctx.closePath();
+          }
+        });
+      }
+
+      // Event handlers
+      canvas.addEventListener("mousedown", (e) => {
+        const rect = canvas.getBoundingClientRect();
+        startX = e.clientX - rect.left;
+        startY = e.clientY - rect.top;
+        drawing = true;
+
+        setStyle();
+
+        if (currentTool === "rectangle" || currentTool === "line") {
+          rectangleStartX = startX;
+          rectangleStartY = startY;
+        } else if (currentTool === "pencil") {
+          const pencilGroup = { tool: "pencil", points: [] };
+          pencilGroup.points.push({
+            x: startX / canvas.width,
+            y: startY / canvas.height,
+          });
+          drawingData.push(pencilGroup);
+          ctx.beginPath();
+          ctx.moveTo(startX, startY);
+        } else if (currentTool === "eraser") {
+          ctx.beginPath();
+          ctx.moveTo(startX, startY);
+        }
+      });
+
+      canvas.addEventListener("mousemove", (e) => {
+        if (!drawing) return;
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        if (currentTool === "pencil") {
+          ctx.lineTo(x, y);
+          ctx.stroke();
+          const currentGroup = drawingData[drawingData.length - 1];
+          currentGroup.points.push({
+            x: x / canvas.width,
+            y: y / canvas.height,
+          });
+        } else if (currentTool === "eraser") {
+          ctx.clearRect(x - 5, y - 5, 10, 10);
+          drawingData.push({
+            tool: "eraser",
+            x: x / canvas.width,
+            y: y / canvas.height,
+          });
+        } else if (currentTool === "rectangle" || currentTool === "line") {
+          redrawCanvas(); // Clear temporary shapes and redraw existing ones
+          const width = x - rectangleStartX;
+          const height = y - rectangleStartY;
+          if (currentTool === "rectangle") {
+            ctx.strokeRect(rectangleStartX, rectangleStartY, width, height);
+          } else if (currentTool === "line") {
+            ctx.beginPath();
+            ctx.moveTo(rectangleStartX, rectangleStartY);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.closePath();
+          }
+        }
+      });
+
+      canvas.addEventListener("mouseup", (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const endX = e.clientX - rect.left;
+        const endY = e.clientY - rect.top;
+        drawing = false;
+
+        if (currentTool === "rectangle") {
+          const width = endX - rectangleStartX;
+          const height = endY - rectangleStartY;
+          drawingData.push({
+            tool: "rectangle",
+            x: rectangleStartX / canvas.width,
+            y: rectangleStartY / canvas.height,
+            width: width / canvas.width,
+            height: height / canvas.height,
+          });
+        } else if (currentTool === "line") {
+          drawingData.push({
+            tool: "line",
+            startX: rectangleStartX / canvas.width,
+            startY: rectangleStartY / canvas.height,
+            endX: endX / canvas.width,
+            endY: endY / canvas.height,
+          });
+        } else if (currentTool === "pencil") {
+          ctx.closePath();
+        }
+      });
+
+      function saveDrawing() {
+        // sendToStreamlit(drawingData);
+        const id = drawingData[0]["url"].split('/').pop();
+        const dataStr =
+          "data:text/json;charset=utf-8," +
+          encodeURIComponent(JSON.stringify(drawingData, null, 2));
+        const downloadAnchor = document.createElement("a");
+        downloadAnchor.href = dataStr;
+        downloadAnchor.download = `${id}.json`;
+        downloadAnchor.click();
+      }
+    </script>
+  </body>
+</html>

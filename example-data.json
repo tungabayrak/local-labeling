@@ -1,0 +1,224 @@
+{
+    "range": [
+        [
+            -3.5,
+            8.482142857142858
+        ],
+        [
+            -5.5,
+            6.482142857142858
+        ]
+    ],
+    "labels": [
+        {
+            "content": "\\small{1}",
+            "coordinates": [
+                1,
+                0
+            ],
+            "alignment": "below",
+            "typesetAsMath": true,
+            "style": {}
+        },
+        {
+            "content": "\\small{2}",
+            "coordinates": [
+                2,
+                0
+            ],
+            "alignment": "below",
+            "typesetAsMath": true,
+            "style": {}
+        },
+        {
+            "content": "\\small{3}",
+            "coordinates": [
+                3,
+                0
+            ],
+            "alignment": "below",
+            "typesetAsMath": true,
+            "style": {}
+        },
+        {
+            "content": "\\small{4}",
+            "coordinates": [
+                4,
+                0
+            ],
+            "alignment": "below",
+            "typesetAsMath": true,
+            "style": {}
+        },
+        {
+            "content": "\\small{5}",
+            "coordinates": [
+                5,
+                0
+            ],
+            "alignment": "below",
+            "typesetAsMath": true,
+            "style": {}
+        },
+        {
+            "content": "\\small{6}",
+            "coordinates": [
+                6,
+                0
+            ],
+            "alignment": "below",
+            "typesetAsMath": true,
+            "style": {}
+        },
+        {
+            "content": "\\small{7}",
+            "coordinates": [
+                7,
+                0
+            ],
+            "alignment": "below",
+            "typesetAsMath": true,
+            "style": {}
+        },
+        {
+            "content": "\\small{\\llap{-}2}",
+            "coordinates": [
+                -2,
+                0
+            ],
+            "alignment": "below",
+            "typesetAsMath": true,
+            "style": {}
+        },
+        {
+            "content": "\\small{\\llap{-}3}",
+            "coordinates": [
+                -3,
+                0
+            ],
+            "alignment": "below",
+            "typesetAsMath": true,
+            "style": {}
+        },
+        {
+            "content": "\\small{1}",
+            "coordinates": [
+                0,
+                1
+            ],
+            "alignment": "left",
+            "typesetAsMath": true,
+            "style": {}
+        },
+        {
+            "content": "\\small{2}",
+            "coordinates": [
+                0,
+                2
+            ],
+            "alignment": "left",
+            "typesetAsMath": true,
+            "style": {}
+        },
+        {
+            "content": "\\small{3}",
+            "coordinates": [
+                0,
+                3
+            ],
+            "alignment": "left",
+            "typesetAsMath": true,
+            "style": {}
+        },
+        {
+            "content": "\\small{4}",
+            "coordinates": [
+                0,
+                4
+            ],
+            "alignment": "left",
+            "typesetAsMath": true,
+            "style": {}
+        },
+        {
+            "content": "\\small{5}",
+            "coordinates": [
+                0,
+                5
+            ],
+            "alignment": "left",
+            "typesetAsMath": true,
+            "style": {}
+        },
+        {
+            "content": "\\small{\\llap{-}2}",
+            "coordinates": [
+                0,
+                -2
+            ],
+            "alignment": "left",
+            "typesetAsMath": true,
+            "style": {}
+        },
+        {
+            "content": "\\small{\\llap{-}3}",
+            "coordinates": [
+                0,
+                -3
+            ],
+            "alignment": "left",
+            "typesetAsMath": true,
+            "style": {}
+        },
+        {
+            "content": "\\small{\\llap{-}4}",
+            "coordinates": [
+                0,
+                -4
+            ],
+            "alignment": "left",
+            "typesetAsMath": true,
+            "style": {}
+        },
+        {
+            "content": "\\small{\\llap{-}5}",
+            "coordinates": [
+                0,
+                -5
+            ],
+            "alignment": "left",
+            "typesetAsMath": true,
+            "style": {}
+        },
+        {
+            "content": "y",
+            "coordinates": [
+                0,
+                5.5
+            ],
+            "alignment": "above",
+            "typesetAsMath": true,
+            "style": {}
+        },
+        {
+            "content": "x",
+            "coordinates": [
+                7.5,
+                0
+            ],
+            "alignment": "right",
+            "typesetAsMath": true,
+            "style": {}
+        },
+        {
+            "content": "O",
+            "coordinates": [
+                0,
+                0
+            ],
+            "alignment": "below left",
+            "typesetAsMath": true,
+            "style": {}
+        }
+    ]
+}
