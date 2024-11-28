@@ -18,6 +18,8 @@ ADMIN_EMAILS = [
     "tungabayrak",
     "moazzam",
     "thomas",
+    "alper",
+    "tolga",
 ]
 
 login_box = st.empty()
