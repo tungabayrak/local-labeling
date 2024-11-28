@@ -86,7 +86,7 @@ elif selected_menu == APP_MENU:
             )
 
         def clean_descriptor(t: str):
-            return t.replace('"', "")[2:]
+            return t.replace('"', "")[2:].strip()
 
         descriptors = [clean_descriptor(d) for d in response.split("\n") if d]
         descriptors = descriptors[1:]  # skip the first preface

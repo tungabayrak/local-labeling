@@ -131,8 +131,8 @@
         } else if (currentTool === "pencil") {
           const pencilGroup = { tool: "pencil", points: [] };
           pencilGroup.points.push({
-            x: startX / canvas.width,
-            y: startY / canvas.height,
+            x: startX,
+            y: startY,
           });
           drawingData.push(pencilGroup);
           ctx.beginPath();
@@ -154,15 +154,15 @@
           ctx.stroke();
           const currentGroup = drawingData[drawingData.length - 1];
           currentGroup.points.push({
-            x: x / canvas.width,
-            y: y / canvas.height,
+            x: x,
+            y: y,
           });
         } else if (currentTool === "eraser") {
           ctx.clearRect(x - 5, y - 5, 10, 10);
           drawingData.push({
             tool: "eraser",
-            x: x / canvas.width,
-            y: y / canvas.height,
+            x: x,
+            y: y,
           });
         } else if (currentTool === "rectangle" || currentTool === "line") {
           redrawCanvas(); // Clear temporary shapes and redraw existing ones
@@ -191,18 +191,18 @@
           const height = endY - rectangleStartY;
           drawingData.push({
             tool: "rectangle",
-            x: rectangleStartX / canvas.width,
-            y: rectangleStartY / canvas.height,
-            width: width / canvas.width,
-            height: height / canvas.height,
+            x: rectangleStartX,
+            y: rectangleStartY,
+            width: width,
+            height: height,
           });
         } else if (currentTool === "line") {
           drawingData.push({
             tool: "line",
-            startX: rectangleStartX / canvas.width,
-            startY: rectangleStartY / canvas.height,
-            endX: endX / canvas.width,
-            endY: endY / canvas.height,
+            startX: rectangleStartX,
+            startY: rectangleStartY,
+            endX: endX,
+            endY: endY,
           });
         } else if (currentTool === "pencil") {
           ctx.closePath();
@@ -214,7 +214,8 @@
           {
             url: document.getElementById("image").getAttribute("src"),
             label: "{label}",
-          }, ...drawingData
+          },
+          ...drawingData,
         ];
         const dataStr =
           "data:text/json;charset=utf-8," +
