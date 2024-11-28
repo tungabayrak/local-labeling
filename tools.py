@@ -36,12 +36,7 @@ def llm_generate(
     prompt: str,
     image: bytes = None,
     system: str = None,
-    model: (
-        Literal["gpt-4o"]
-        | Literal["gpt-4o-mini"]
-        | Literal["o1-preview"]
-        | Literal["claude-3-5-sonnet-latest"]
-    ) = "gpt-4o-mini",
+    model="gpt-4o-mini",
     messages=None,
 ):
     """
