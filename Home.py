@@ -80,10 +80,12 @@ elif selected_menu == APP_MENU:
                 prompt="I need to train an AI model to segment lines properly on geometry questions. Here is a question, give me 10 text prompts that refer to lines in an image so I can label them for my training data.",
             )
 
-        descriptors = response.split("-")
-        st.text_input(label="Label", value=descriptors)
-        placeholder = st.text(f"Data {image_url}")
-        components.html(manager.labeler.replace("{image_url}", image_url), height=1000)
+        descriptors = [d for d in response.split("\n") if d]
+        for i, d in enumerate(descriptors):
+            st.text_input(label=f"Label {i}/{(len(descriptors))}", value=d)
+            placeholder = st.text(f"Data {image_url}")
+            components.html(manager.labeler.replace("{image_url}", image_url), height=500)
+
 
 elif DATA_MENU:
     st.table(

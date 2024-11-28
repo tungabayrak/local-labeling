@@ -1,6 +1,7 @@
 import os
 import json
 from tools import get_image_items
+from itertools import chain
 
 
 class Manager:
@@ -9,11 +10,23 @@ class Manager:
         with open("khan-academy-data.json") as f:
             data = json.load(f)
 
-        self.data = get_image_items(data)
+        khanacademy = [
+            {**img, "url": img["options"]["backgroundImage"]["url"]}
+            for img in get_image_items(data)
+            if "options" in img
+            and img["options"]["backgroundImage"]["url"].endswith(".png")
+        ]
+        cracksat = []
+        self.data = [*khanacademy]
+
         self.registeration = {}
+        self.load()
+
+        work_done = list(chain.from_iterable(self.registeration.values()))
+        self.data = [d for d in self.data if d not in work_done]
+
         with open("labeler.html", "r") as f:
             self.labeler = f.read()
-        self.load()
 
     def load(self):
         if not os.path.exists("work.json"):

@@ -46,33 +46,17 @@
       <button onclick="saveDrawing()">Save Drawing</button>
     </div>
     <div id="container">
-      <img
-        id="image"
-        src="{image_url}"
-        alt="Image"
-      />
+      <img id="image" src="{image_url}" alt="Image" />
       <canvas id="canvas"></canvas>
     </div>
     <script>
       const canvas = document.getElementById("canvas");
       const ctx = canvas.getContext("2d");
       const image = document.getElementById("image");
-      const drawingData = [{"url": "{image_url}"}];
+      const drawingData = [{ url: "{image_url}" }];
       let currentTool = "pencil";
       let drawing = false;
       let startX, startY;
-
-      // Function to send data back to Streamlit
-      function sendToStreamlit(data) {
-        window.parent.postMessage(
-          {
-            isStreamlitMessage: true,
-            type: "streamlit:setComponentValue",
-            ...data,
-          },
-          "*"
-        );
-      }
 
       // Resize canvas to match the image
       image.onload = () => {
@@ -226,8 +210,7 @@
       });
 
       function saveDrawing() {
-        // sendToStreamlit(drawingData);
-        const id = drawingData[0]["url"].split('/').pop();
+        const id = drawingData[0]["url"].split("/").pop();
         const dataStr =
           "data:text/json;charset=utf-8," +
           encodeURIComponent(JSON.stringify(drawingData, null, 2));
