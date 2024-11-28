@@ -33,9 +33,9 @@ def get_image_items(data: dict):
 
 
 def llm_generate(
-    prompt: str | None,
-    image: bytes | str | None = None,
-    system: str | None = None,
+    prompt: str,
+    image: bytes = None,
+    system: str = None,
     model: (
         Literal["gpt-4o"]
         | Literal["gpt-4o-mini"]
@@ -49,7 +49,7 @@ def llm_generate(
 
     prompt: str
         the prompt passed to the LLM
-    image: bytes | str | None
+    image: bytes | str
         image binary data or base64 string
     system: str
         system prompt
