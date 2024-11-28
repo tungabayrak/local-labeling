@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Canvas Reconstruction</title>
+    <style>
+      #container {
+        position: relative;
+        display: inline-block;
+      }
+      canvas,
+      img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        border: 3px solid #ff9a62;
+      }
+
+      img {
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <p id="label"></p>
+    <div id="container">
+      <img id="image" alt="Image" />
+      <canvas id="canvas"></canvas>
+    </div>
+    <script>
+      // Global variables
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      const image = document.getElementById("image");
+      const label = document.getElementById("label");
+      const container = document.getElementById("container");
+
+      const data = {json_data};
+      const metadata = data.shift();
+      image.setAttribute("src", metadata["url"]);
+      label.textContent = metadata["label"];
+
+      function setStyle() {
+        ctx.strokeStyle = "#0000fc";
+        ctx.lineWidth = 4;
+      }
+
+      image.onload = () => {
+        canvas.width = image.width;
+        canvas.height = image.height;
+        container.width = image.width;
+        container.height = image.height;
+
+        setStyle();
+        redrawFromJSON(data);
+      };
+
+      const redrawFromJSON = (data) => {
+        data.forEach((item) => {
+          if (item.tool === "pencil") {
+            ctx.beginPath();
+            item.points.forEach((point, index) => {
+              const x = point.x;
+              const y = point.y;
+              if (index === 0) ctx.moveTo(x, y);
+              else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            ctx.closePath();
+          } else if (item.tool === "rectangle") {
+            ctx.strokeRect(item.x, item.y, item.width, item.height);
+          } else if (item.tool === "line") {
+            ctx.beginPath();
+            ctx.moveTo(item.startX, item.startY);
+            ctx.lineTo(item.endX, item.endY);
+            ctx.stroke();
+            ctx.closePath();
+          }
+        });
+      };
+    </script>
+  </body>
+</html>

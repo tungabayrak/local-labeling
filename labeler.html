@@ -20,30 +20,34 @@
       img {
         pointer-events: none;
       }
+      
       #tools {
         margin-top: 20px;
+        display: flex;
+        gap: 6px;
       }
 
-      button {
+      #tools div {
         padding: 4px 12px;
         border: 1px solid gray;
         border-radius: 8px;
         background: transparent;
         cursor: pointer;
+        width: fit-content;
       }
 
-      button:hover {
-        background: rgb(160, 160, 160);
+      #tools div:hover {
+        background: rgb(238, 238, 238);
       }
     </style>
   </head>
   <body>
     <div id="tools">
-      <button onclick="setTool('pencil')">Pencil</button>
-      <button onclick="setTool('line')">Line</button>
-      <button onclick="setTool('rectangle')">Rectangle</button>
-      <button onclick="clearCanvas()">Clear</button>
-      <button onclick="saveDrawing()">Save Drawing</button>
+      <div onclick="setTool('pencil')">Pencil</div>
+      <div onclick="setTool('line')">Line</div>
+      <div onclick="setTool('rectangle')">Rectangle</div>
+      <div onclick="clearCanvas()">Clear</div>
+      <div onclick="saveDrawing()">Save Drawing</div>
     </div>
     <div id="container">
       <img id="image" src="{image_url}" alt="Image" />
@@ -154,13 +158,6 @@
           ctx.stroke();
           const currentGroup = drawingData[drawingData.length - 1];
           currentGroup.points.push({
-            x: x,
-            y: y,
-          });
-        } else if (currentTool === "eraser") {
-          ctx.clearRect(x - 5, y - 5, 10, 10);
-          drawingData.push({
-            tool: "eraser",
             x: x,
             y: y,
           });

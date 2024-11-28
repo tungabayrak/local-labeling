@@ -28,7 +28,7 @@ def get_image_items(data: dict):
         for w, w_obj in widgets.items():
             if not w.startswith("image"):
                 continue
-            img_items.append(w_obj)
+            img_items.append({"id": id, **w_obj})
     return img_items
 
 

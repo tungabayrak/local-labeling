@@ -19,23 +19,31 @@ class Manager:
             and img["options"]["backgroundImage"]["url"].endswith(".png")
         ]
         cracksat = []
-        for subdirs, _, files in os.walk("cracksat-images"):
+        for _, _, files in os.walk("cracksat-images"):
             for fp in files:
                 with open(f"cracksat-images/{fp}", "rb") as f:
-                    cracksat.append(
-                        {"id": fp, "url": f.read()}
-                    )
+                    cracksat.append({"id": fp, "url": f.read()})
 
         self.data = [*khanacademy, *cracksat]
-
         self.registeration = {}
         self.load()
 
+        # filter out done did data
         work_done = list(chain.from_iterable(self.registeration.values()))
-        self.data = [d for d in self.data if d not in work_done]
+        self.data = [d for d in self.data if d["id"] not in work_done]
 
+        self.lookback = {}
         with open("labeler.html", "r") as fp:
-            self.labeler = fp.read()
+            self.labeler_html = fp.read()
+        with open("viewer.html", "r") as fp:
+            self.viewer_html = fp.read()
+
+        self.work = []
+        for _, _, files in os.walk("work"):
+            for fp in files:
+                with open(f"work/{fp}", "r") as f:
+                    self.work.append(json.load(f))
+
         print("Manager initialized...")
 
     def load(self):
@@ -52,7 +60,16 @@ class Manager:
 
         img = self.data.pop()
         self.registeration[email].append(img["id"])
+        self.lookback[img["id"]] = img
         self.save()
+        return img
+
+    def load_previous_image(self, email: str) -> dict:
+        try:
+            img = self.lookback[self.registeration[email][-1]]
+        except Exception:
+            img = None
+
         return img
 
     def save(self):
