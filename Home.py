@@ -29,23 +29,13 @@ login_sidebar.header("Login to Continue")
 with login_box.form(key="login_form"):
     st.markdown("Authenticate with Google")
     email = st.text_input("Email")
-    password = st.text_input("Password", type="password")
     submit_button = st.form_submit_button(label="Login")
 
     if submit_button and email and password:
-        with st.spinner("Logging in"):
-            # current_user = Auth.sign_in_with_email_and_password(email, password)
-            if password != "@8sdJs!XcsfEG":
-                current_user = {"error": {"message": "INVALID LOGIN CREDENTIALS"}}
-            else:
-                current_user = {"email": email, "": {}}
-
-        if "error" in current_user:
-            st.text(current_user["error"]["message"])
-        else:
-            if current_user["email"] in ADMIN_EMAILS:
-                logged_in = True
-                st.session_state["current_user_email"] = current_user["email"]
+        current_user = {"email": email, "": {}}
+        if current_user["email"] in ADMIN_EMAILS:
+            logged_in = True
+            st.session_state["current_user_email"] = current_user["email"]
 
 if logged_in:
     login_box.empty()
