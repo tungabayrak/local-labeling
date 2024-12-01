@@ -20,7 +20,7 @@
       img {
         pointer-events: none;
       }
-      
+
       #tools {
         margin-top: 20px;
         display: flex;
@@ -91,29 +91,25 @@
         ctx.drawImage(image, 0, 0); // Reset to the original image
 
         setStyle();
+        console.log(JSON.stringify(drawingData));
 
         drawingData.forEach((item) => {
           if (item.tool === "pencil") {
             ctx.beginPath();
             item.points.forEach((point, index) => {
-              const x = point.x * canvas.width;
-              const y = point.y * canvas.height;
+              const x = point.x;
+              const y = point.y;
               if (index === 0) ctx.moveTo(x, y);
               else ctx.lineTo(x, y);
             });
             ctx.stroke();
             ctx.closePath();
           } else if (item.tool === "rectangle") {
-            ctx.strokeRect(
-              item.x * canvas.width,
-              item.y * canvas.height,
-              item.width * canvas.width,
-              item.height * canvas.height
-            );
+            ctx.strokeRect(item.x, item.y, item.width, item.height);
           } else if (item.tool === "line") {
             ctx.beginPath();
-            ctx.moveTo(item.startX * canvas.width, item.startY * canvas.height);
-            ctx.lineTo(item.endX * canvas.width, item.endY * canvas.height);
+            ctx.moveTo(item.startX, item.startY);
+            ctx.lineTo(item.endX, item.endY);
             ctx.stroke();
             ctx.closePath();
           }
@@ -162,7 +158,7 @@
             y: y,
           });
         } else if (currentTool === "rectangle" || currentTool === "line") {
-          redrawCanvas(); // Clear temporary shapes and redraw existing ones
+          redrawCanvas();
           const width = x - rectangleStartX;
           const height = y - rectangleStartY;
           if (currentTool === "rectangle") {
@@ -204,6 +200,7 @@
         } else if (currentTool === "pencil") {
           ctx.closePath();
         }
+        // redrawCanvas();
       });
 
       function saveDrawing() {

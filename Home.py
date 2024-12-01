@@ -1,10 +1,12 @@
 import requests
 import streamlit as st
-from tools import llm_generate
+import base64
 import json
+import os
+
+from tools import llm_generate
 from manager import manager
 import streamlit.components.v1 as components
-import base64
 
 st.set_page_config(page_title="Shark Label", page_icon="🦈", layout="wide")
 big_title = st.empty()
@@ -27,11 +29,11 @@ login_sidebar = st.sidebar.empty()
 login_sidebar.header("Login to Continue")
 
 with login_box.form(key="login_form"):
-    st.markdown("Authenticate with Google")
-    email = st.text_input("Email")
+    st.markdown("Authenticate with trusted name")
+    email = st.text_input("Username")
     submit_button = st.form_submit_button(label="Login")
 
-    if submit_button and email and password:
+    if submit_button and email:
         current_user = {"email": email, "": {}}
         if current_user["email"] in ADMIN_EMAILS:
             logged_in = True
@@ -58,52 +60,64 @@ if selected_menu == INFO:
     st.markdown("""### Information""")
 
 elif selected_menu == APP_MENU:
-    st.markdown(f"{len(manager.data)} images waiting to be labelled.")
+    st.markdown("Images waiting to be labelled.")
+    st.table([{"category": k, "size": len(v)} for k, v in manager.data.items()])
 
-    if st.button("Go Back", icon="⬅️"):
-        prev = manager.load_previous_image(st.session_state["current_user_email"])
-        if not prev:
-            st.warning("Unable to go back")
-        else:
-            st.session_state["loaded_image"] = prev["url"]
+    # if st.button("Go Back", icon="⬅️"):
+    #     prev = manager.load_previous_image(st.session_state["current_user_email"])
+    #     if not prev:
+    #         st.warning("Unable to go back")
+    #     else:
+    #         st.session_state["loaded_image"] = prev["url"]
 
+    category = st.selectbox("Categories", list(manager.data.keys()))
+    save = st.checkbox("Save", value=True)
     if st.button("Label", icon="➡️"):
         st.session_state["loaded_image"] = manager.load_image(
-            st.session_state["current_user_email"]
-        )["url"]
+            category, st.session_state["current_user_email"], save=save
+        )
         st.session_state["set_descriptors"] = False
 
     if st.session_state.get("set_descriptors") == None:
         st.session_state["set_descriptors"] = False
 
     if loaded_image := st.session_state.get("loaded_image"):
-        if isinstance(loaded_image, bytes):
-            image = loaded_image
-            image_url = f"data:image/png;base64,{base64.b64encode(loaded_image).decode('utf-8')}"
+        if isinstance(loaded_image["url"], bytes):
+            image = loaded_image["url"]
+            image_url = f"data:image/png;base64,{base64.b64encode(loaded_image['url']).decode('utf-8')}"
         else:
             with st.spinner("Downloading image"):
-                resp = requests.get(loaded_image)
+                resp = requests.get(loaded_image["url"])
             image = resp.content
-            image_url = loaded_image
+            image_url = loaded_image["url"]
 
         def clean_descriptor(t: str):
             return t.replace('"', "")[2:].strip()
 
         if not st.session_state["set_descriptors"]:
             with st.spinner("Generaing a.i. descriptors"):
+                print(loaded_image["id"], list(manager.descriptions.keys()))
+                extra_desc = manager.descriptions.get(
+                    loaded_image["id"].replace(".png", ""), ""
+                )
+                if extra_desc:
+                    extra_desc = (
+                        f"\nHere is a helpful annotation of the image: {extra_desc}"
+                    )
                 _, response = llm_generate(
                     image=image,
-                    prompt="I need to train an AI model to segment lines properly on geometry questions. Here is a question, give me 10 text prompts that refer to lines in an image so I can label them for my training data.",
+                    prompt="I need to train an AI model to segment lines properly on geometry questions. Here is a question, give me 10 text prompts that refer to lines in an image so I can label them for my training data. {}",
                 )
-            st.session_state["descriptors"] = [
-                clean_descriptor(d) for d in response.split("\n") if d
-            ][
-                1:
-            ]  # skip the first preface
+
+            st.session_state["descriptors"] = {
+                "lines": [clean_descriptor(d) for d in response.split("\n") if d][1:],
+                "extra": extra_desc,
+            }
             st.session_state["set_descriptors"] = True
 
+        st.markdown(f"**Image Description**: {st.session_state['descriptors']['extra']}")
         st.markdown("**Please scroll down to see all the descriptors**")
-        descriptors = st.session_state["descriptors"]
+        descriptors = st.session_state["descriptors"]["lines"]
         for i in range(len(descriptors)):
             descriptors[i] = st.text_input(
                 label=f"Label {i}/{(len(descriptors))}", value=descriptors[i]
