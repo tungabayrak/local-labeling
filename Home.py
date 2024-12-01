@@ -46,20 +46,15 @@ else:
     st.stop()
 
 st.sidebar.header(f"🔑 {st.session_state['current_user_email']}")
-INFO = "Information"
 APP_MENU = "🚩 App"
 DATA_MENU = "📅 Data"
-selected_menu = st.sidebar.radio("Menus", [INFO, APP_MENU, DATA_MENU])
+selected_menu = st.sidebar.radio("Menus", [APP_MENU, DATA_MENU])
 
 if st.sidebar.button("Logout"):
     st.session_state["current_user_email"] = None
     st.rerun()
 
-
-if selected_menu == INFO:
-    st.markdown("""### Information""")
-
-elif selected_menu == APP_MENU:
+if selected_menu == APP_MENU:
     st.markdown("Images waiting to be labelled.")
     st.table([{"category": k, "size": len(v)} for k, v in manager.data.items()])
 
@@ -115,7 +110,9 @@ elif selected_menu == APP_MENU:
             }
             st.session_state["set_descriptors"] = True
 
-        st.markdown(f"**Image Description**: {st.session_state['descriptors']['extra']}")
+        st.markdown(
+            f"**Image Description**: {st.session_state['descriptors']['extra']}"
+        )
         st.markdown("**Please scroll down to see all the descriptors**")
         descriptors = st.session_state["descriptors"]["lines"]
         for i in range(len(descriptors)):
