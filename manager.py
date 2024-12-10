@@ -72,7 +72,7 @@ class Manager:
 
     def load_image(self, category: str, email: str, save=False):
         with open("background.jpg", "rb") as f:
-            return f.read()
+            return {"url": f.read(), "id": "1"}
         if email not in self.registeration:
             self.registeration[email] = []
 
