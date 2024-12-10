@@ -71,6 +71,8 @@ class Manager:
             return json.load(f)
 
     def load_image(self, category: str, email: str, save=False):
+        with open("background.jpg", "rb") as f:
+            return f.read()
         if email not in self.registeration:
             self.registeration[email] = []
 
