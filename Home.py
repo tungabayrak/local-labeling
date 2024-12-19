@@ -55,15 +55,69 @@ if selected_menu == APP_MENU:
     st.markdown("Images waiting to be labelled.")
     st.table([{"category": k, "size": len(v)} for k, v in manager.data.items()])
 
-    # if st.button("Go Back", icon="⬅️"):
-    #     prev = manager.load_previous_image(st.session_state["current_user_email"])
-    #     if not prev:
-    #         st.warning("Unable to go back")
-    #     else:
-    #         st.session_state["loaded_image"] = prev["url"]
-
     category = st.selectbox("Categories", list(manager.data.keys()))
+    
+    default_prompt = """
+    I am doing a labeling -  referring expression comprehension task for SAT Math Exam images. 
+    I need you to give me 5-10 labeling tasks for spesific elements, points, objects and regions that are important information from the image. 
+    Take the image description as the main source of information.
+    The only tool I can use for labeling for are: Pencil, Line, Bounding box. So give me the task accordingly with my tools that I can mask things.
+    """
+    if "custom_prompt" not in st.session_state:
+        st.session_state["custom_prompt"] = default_prompt
+        
+    st.markdown("### LLM Prompt Settings")
+    st.session_state["custom_prompt"] = st.text_area(
+        "Edit AI Prompt", 
+        value=st.session_state["custom_prompt"],
+        help="Customize the prompt that will be sent to the AI when analyzing images"
+    )
+    if st.button("Reset Prompt"):
+        st.session_state["custom_prompt"] = default_prompt
+        st.rerun()
+    
     save = st.checkbox("Save", value=True)
+    
+    if "data/Tomas SAT pictures" in category:
+        preview_container = st.empty()
+        if st.button("Preview Next Image"):
+            next_image = manager.data[category][-1]  # Get next image without popping it
+            image_id = next_image["id"].split('.')[0]  # Remove file extension
+            
+            try:
+                # Try to read the SAT description file
+                with open("data/Tomas SAT picture labels.txt", "r") as f:
+                    sat_descriptions = f.read()
+                
+                # Find matching description for this image
+                import re
+                description_match = re.search(f"^{image_id}: (.*?)$", sat_descriptions, re.MULTILINE)
+                if description_match:
+                    description = description_match.group(1).strip()
+                else:
+                    description = "No matching description found for this image ID"
+                    st.warning(f"Could not find description for image {image_id}")
+                
+            except FileNotFoundError:
+                st.error("SAT description file not found at: data/Tomas SAT picture labels.txt")
+                description = "Description file not found"
+            except Exception as e:
+                st.error(f"Error reading description: {str(e)}")
+                description = "Error reading description"
+            
+            # Display preview
+            with preview_container.container():
+                st.markdown("### Preview")
+                if isinstance(next_image["url"], bytes):
+                    st.image(next_image["url"])
+                else:
+                    st.image(next_image["url"])
+                st.markdown("**Image ID:** " + image_id)
+                st.markdown("**Description from SAT data:**")
+                st.markdown(description)
+                st.markdown("**Prompt to be sent:**")
+                st.markdown(st.session_state["custom_prompt"])
+    
     if st.button("Label", icon="➡️"):
         st.session_state["loaded_image"] = manager.load_image(
             category, st.session_state["current_user_email"], save=save
@@ -87,7 +141,7 @@ if selected_menu == APP_MENU:
             return t.replace('"', "")[2:].strip()
 
         if not st.session_state["set_descriptors"]:
-            with st.spinner("Generaing a.i. descriptors"):
+            with st.spinner("Generating a.i. descriptors"):
                 print(loaded_image["id"], list(manager.descriptions.keys()))
                 extra_desc = manager.descriptions.get(
                     loaded_image["id"].replace(".png", ""), ""
@@ -98,7 +152,7 @@ if selected_menu == APP_MENU:
                     )
                 _, response = llm_generate(
                     image=image,
-                    prompt="I need you to give me cute dog names",
+                    prompt=st.session_state["custom_prompt"],
                 )
 
             st.session_state["descriptors"] = {
