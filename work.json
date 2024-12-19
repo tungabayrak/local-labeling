@@ -1,0 +1,6 @@
+{
+  "authentication": {
+    "type": "dropdown",
+    "users": ["tomas", "tunga", "ricky", "Alper", "Moazzam", "tolga"]
+  }
+}

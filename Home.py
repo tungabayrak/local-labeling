@@ -12,35 +12,32 @@ st.set_page_config(page_title="Shark Label", page_icon="🦈", layout="wide")
 big_title = st.empty()
 big_title.markdown("# 🦈 Shark Label")
 
+USERS = [
+    "tomas",
+    "tunga",
+    "ricky", 
+    "Alper",
+    "Moazzam",
+    "tolga"
+]
+
 current_user_email = st.session_state.get("current_user_email")
 logged_in = current_user_email != None
 
-ADMIN_EMAILS = [
-    "pyaesonemyo",
-    "tungabayrak",
-    "moazzam",
-    "thomas",
-    "alper",
-    "tolga",
-]
-
-login_box = st.empty()
+user_select_container = st.empty()
 login_sidebar = st.sidebar.empty()
-login_sidebar.header("Login to Continue")
+login_sidebar.header("Select User")
 
-with login_box.form(key="login_form"):
-    st.markdown("Authenticate with trusted name")
-    email = st.text_input("Username")
-    submit_button = st.form_submit_button(label="Login")
-
-    if submit_button and email:
-        current_user = {"email": email, "": {}}
-        if current_user["email"] in ADMIN_EMAILS:
+if not logged_in:
+    with user_select_container.container():
+        selected_user = st.selectbox("Select your name", USERS)
+        if st.button("Continue"):
+            st.session_state["current_user_email"] = selected_user
             logged_in = True
-            st.session_state["current_user_email"] = current_user["email"]
+            st.rerun()
 
 if logged_in:
-    login_box.empty()
+    user_select_container.empty()
     login_sidebar.empty()
 else:
     st.stop()
@@ -101,7 +98,7 @@ if selected_menu == APP_MENU:
                     )
                 _, response = llm_generate(
                     image=image,
-                    prompt="I need to train an AI model to segment lines properly on geometry questions. Here is a question, give me 10 text prompts that refer to lines in an image so I can label them for my training data. {}",
+                    prompt="I need you to give me cute dog names",
                 )
 
             st.session_state["descriptors"] = {
@@ -128,7 +125,7 @@ if selected_menu == APP_MENU:
 
 elif DATA_MENU:
     st.table(
-        [{"user": k, "n_labelled": len(v)} for k, v in manager.registeration.items()]
+        [{"user": k, "n_labelled": len(v)} for k, v in manager.registration.items()]
     )
 
     with open("viewer.html", "r") as fp:

@@ -19,10 +19,10 @@ class Manager:
             and img["options"]["backgroundImage"]["url"].endswith(".png")
         ]
 
-        self.registeration = self.load_registeration()
+        self.registration = self.load_registration()
 
         self.data = {}
-        work_done = list(chain.from_iterable(self.registeration.values()))
+        work_done = list(chain.from_iterable(self.registration.values()))
         for subdir, _, files in os.walk("data"):
             if [f for f in files if f.endswith(".png")]:
                 self.data[subdir] = []
@@ -62,37 +62,37 @@ class Manager:
                     work.append(json.load(f))
         return work
 
-    def load_registeration(self):
-        if not os.path.exists("work.json"):
-            self.save()
+    def load_registration(self):
+        try:
+            with open("registration.json", "r") as f:
+                return json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            # Return empty dict if file doesn't exist or is empty/malformed
             return {}
 
-        with open("work.json", "r") as f:
-            return json.load(f)
-
     def load_image(self, category: str, email: str, save=False):
-        if email not in self.registeration:
-            self.registeration[email] = []
+        if email not in self.registration:
+            self.registration[email] = []
 
         img = self.data[category].pop()
         
         if save:
-            self.registeration[email].append(img["id"])
+            self.registration[email].append(img["id"])
             self.lookback[img["id"]] = img
             self.save()
         return img
 
     def load_previous_image(self, email: str) -> dict:
         try:
-            img = self.lookback[self.registeration[email][-1]]
+            img = self.lookback[self.registration[email][-1]]
         except Exception:
             img = None
 
         return img
 
     def save(self):
-        with open("work.json", "w") as f:
-            json.dump(self.registeration, f)
+        with open("registration.json", "w") as f:
+            json.dump(self.registration, f)
 
 
 manager = Manager()
