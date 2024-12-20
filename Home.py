@@ -51,6 +51,21 @@ if st.sidebar.button("Logout"):
     st.session_state["current_user_email"] = None
     st.rerun()
 
+def load_saved_prompt():
+    try:
+        with open('config.json', 'r') as f:
+            config = json.load(f)
+            return config.get('custom_prompt', default_prompt)
+    except FileNotFoundError:
+        # If this is first time running, create config.json with default prompt
+        save_prompt(default_prompt)
+        return default_prompt
+
+def save_prompt(prompt):
+    config = {'custom_prompt': prompt}
+    with open('config.json', 'w') as f:
+        json.dump(config, f)
+
 if selected_menu == APP_MENU:
     st.markdown("Images waiting to be labelled.")
     st.table([{"category": k, "size": len(v)} for k, v in manager.data.items()])
@@ -63,17 +78,25 @@ if selected_menu == APP_MENU:
     Take the image description as the main source of information.
     The only tool I can use for labeling for are: Pencil, Line, Bounding box. So give me the task accordingly with my tools that I can mask things.
     """
+    
     if "custom_prompt" not in st.session_state:
-        st.session_state["custom_prompt"] = default_prompt
+        st.session_state["custom_prompt"] = load_saved_prompt()
         
     st.markdown("### LLM Prompt Settings")
-    st.session_state["custom_prompt"] = st.text_area(
+    new_prompt = st.text_area(
         "Edit AI Prompt", 
         value=st.session_state["custom_prompt"],
         help="Customize the prompt that will be sent to the AI when analyzing images"
     )
+    
+    # Save prompt if it changed
+    if new_prompt != st.session_state["custom_prompt"]:
+        st.session_state["custom_prompt"] = new_prompt
+        save_prompt(new_prompt)
+    
     if st.button("Reset Prompt"):
         st.session_state["custom_prompt"] = default_prompt
+        save_prompt(default_prompt)
         st.rerun()
     
     save = st.checkbox("Save", value=True)
